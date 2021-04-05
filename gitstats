@@ -72,16 +72,16 @@ def getpipeoutput(cmds, quiet = False):
 	exectime_external += (end - start)
 	return output.rstrip('\n')
 
-def getlogrange(defaultrange = 'HEAD', end_only = True):
+def getlogrange(defaultrange = 'HEAD', end_only = False):
 	commit_range = getcommitrange(defaultrange, end_only)
 	if len(conf['start_date']) > 0:
 		return '--since="%s" "%s"' % (conf['start_date'], commit_range)
 	return commit_range
 
 def getcommitrange(defaultrange = 'HEAD', end_only = False):
-	if len(conf['commit_end']) > 0:
-		if end_only or len(conf['commit_begin']) == 0:
-			return conf['commit_end']
+	if end_only or len(conf['commit_begin']) == 0:
+		return conf['commit_end']
+	elif len(conf['commit_begin']) and len(conf['commit_end']):
 		return '%s..%s' % (conf['commit_begin'], conf['commit_end'])
 	return defaultrange
 
@@ -109,8 +109,8 @@ def getversion():
 	global VERSION
 	if VERSION == 0:
 		gitstats_repo = os.path.dirname(os.path.abspath(__file__))
-		VERSION = getpipeoutput(["git --git-dir=%s/.git --work-tree=%s rev-parse --short %s" %
-			(gitstats_repo, gitstats_repo, getcommitrange('HEAD').split('\n')[0])])
+		VERSION = getpipeoutput(["git --git-dir=%s/.git --work-tree=%s rev-parse --short HEAD" %
+			(gitstats_repo, gitstats_repo)])
 	return VERSION
 
 def getgitversion():
@@ -201,6 +201,21 @@ class DataCollector:
 			self.projectname = os.path.basename(os.path.abspath(dir))
 		else:
 			self.projectname = conf['project_name']
+
+		# See README on setting gitstatsCfg.js
+		cfg_filepath = os.path.join(dir, 'gitstatsCfg.js')
+		if os.path.isfile(cfg_filepath):
+			with open(cfg_filepath) as cfg_file:
+				ignore_line = cfg_file.readline()
+				ignores = ignore_line and ignore_line.split('"') 
+				conf['ignore'] = ignores[1] if len(ignores) > 2 else ''
+				if conf['ignore']:
+					print 'Found .gitstatsignore, will filter files matched'
+				begin_line = cfg_file.readline()
+				begins = begin_line and begin_line.split('"') 
+				conf['commit_begin'] = begins[1] if len(begins) > 2 else ''
+				if conf['commit_begin']:
+					print 'Using commit_begin =', conf['commit_begin']
 	
 	##
 	# Load cacheable data
@@ -489,6 +504,8 @@ class GitDataCollector(DataCollector):
 			blob_id = parts[2]
 			size = int(parts[3])
 			fullpath = parts[4]
+			if conf['ignore'] and re.search(conf['ignore'], fullpath):
+				continue
 
 			self.total_size += size
 			self.total_files += 1
@@ -1488,4 +1505,3 @@ class GitStats:
 if __name__=='__main__':
 	g = GitStats()
 	g.run(sys.argv[1:])
-
