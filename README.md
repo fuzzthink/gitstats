@@ -40,7 +40,9 @@ The config file requires the following:
 2. 2nd line if provided, must define the `commit_begin` string.
 3. Both values must be delimited by double quotes.
 
-- These are the only rules. The variable names do not matter. The file does not even need to be valid js file. 
+These are the only rules. The variable names do not matter. The file does not even need to be valid js file. 
+
+Specifying the `ignore` file paths is most likely not enough since the LOC per commit is done via line additions and subtractions, and there is no easy way to filter the deltas based on file paths. If you are lucky enough to have removed large files early in your history, specifying the `commit_begin` will help.
 
 Here's the actual `gitstatsCfg.js` I am using in my project.
 
