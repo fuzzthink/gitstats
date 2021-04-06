@@ -1,6 +1,6 @@
 # GitStats, slightly enhanced
 
-This fork of [gitstats](https://github.com/hoxu/gitstats). It adds the following fixes/enhancements:
+This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the following fixes/enhancements:
 
 - Ability to read a gitstats config file in source repo
 - Fixed the inability to specify `commit_begin`
@@ -68,8 +68,8 @@ Rules:
 Here is an example of using the config file in your own repo.
 
 ```javascript
-import { exec } from 'child_process'
-import { ignore } from './gitstatsCfg.js'
+const { exec } = require('child_process')
+const { ignore } = require('./gitstatsCfg')
 
 exec('git ls-files | grep -Ev "'+ignore+'" | xargs wc -l | grep " total"', (err, stdout, stderr) => {
   if (err || stderr) {
