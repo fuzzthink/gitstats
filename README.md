@@ -30,7 +30,7 @@ Please raise issues related to gitstats in [gitstats/issues](https://github.com/
 
 ## Config File
 
-To specify `commit_begin` param and files and paths to ignore, add `gitstatsCfg.js` at the root of the source repo.
+To specify `commit_begin` and the file paths to ignore, add `gitstatsCfg.js` at the root of the repo to run gitstats on.
 
 The config file is a javascript file since both js and non-js sources (like this repo) can easily read and make use of it.
 
@@ -40,7 +40,7 @@ The config file requires the following:
 2. 2nd line if provided, must define the `commit_begin` string.
 3. Both values must be delimited by double quotes.
 
-These are the only rules. The variable names do not matter. The file does not even need to be valid js file. 
+These are the only rules. The variable names do not matter. The file does not even need to be a valid js file. 
 
 Specifying the `ignore` file paths is most likely not enough since the LOC per commit is done via line additions and subtractions, and there is no easy way to filter the deltas based on file paths. If you are lucky enough to have removed large files early in your history, specifying the `commit_begin` will help.
 
