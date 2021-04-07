@@ -50,7 +50,7 @@ Here's the actual `gitstatsCfg.js` I am using in my project.
 const ignore="/static|public/|.json|.txt|.gitignore|.yml|.editorconfig|.lock|chart/config.js"
 const commit_begin="2add5d6"
 
-export {
+export { // module.exports = { // if will import with require
   ignore,
   commit_begin,
 }
@@ -68,8 +68,9 @@ Rules:
 Here is an example of using the config file in your own repo.
 
 ```javascript
-const { exec } = require('child_process')
-const { ignore } = require('./gitstatsCfg')
+import exec from 'child_process'
+import ignore from './gitstatsCfg'
+// const { ... } = require(...) // if using require
 
 exec('git ls-files | grep -Ev "'+ignore+'" | xargs wc -l | grep " total"', (err, stdout, stderr) => {
   if (err || stderr) {
