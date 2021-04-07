@@ -18,7 +18,7 @@ If you want to use a well maintained fork/version of gitstats, I highly recommen
 
 If you want to develop futher on gitstats, here are some interesting forks worth taking a look or to fork from:
 
-- [laserb's](https://github.com/laserb/gitstats/commits/master) - added changes author.
+- [laserb's](https://github.com/laserb/gitstats/commits/master) - added changes around authors.
 - [matt-chalmer's fork of laserb's](https://github.com/matt-chalmers/gitstats/commits/master) - added some changes on top of laserb's.
 - [tonylixu's](https://github.com/tonylixu/gitstats/commits/master) - added some visualizations and styling changes.
 
