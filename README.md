@@ -74,7 +74,7 @@ Rules:
 */
 ```
 
-The 3rd line is used to offset a miscount due to adding or remove non-source codes but counted by gitstats. Specify the delta to be added to that commit.
+The 3rd line is used to offset a miscount due to adding or remove non-source codes but counted by gitstats. Specify the timestamp of the commit to add the delta, followed by a comma, and the line count to be added.
 
 The commit timestamp can be obtained via 
 
