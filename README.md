@@ -22,6 +22,7 @@ If you want to develop futher on gitstats, here are some interesting forks worth
 - [laserb's](https://github.com/laserb/gitstats/commits/master) - added changes around authors.
 - [matt-chalmer's fork of laserb's](https://github.com/matt-chalmers/gitstats/commits/master) - added some changes on top of laserb's.
 - [tonylixu's](https://github.com/tonylixu/gitstats/commits/master) - added some visualizations and styling changes.
+- [KaivnD's](https://github.com/KaivnD/gitstats/commits/master) - Refactor to split the big file into multiple files, good fork to based off from to understand the code and make your own changes.
 
 If you know of other good forks with great features added, let me know and I will add to the list.
 
