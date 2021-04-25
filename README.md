@@ -6,6 +6,7 @@ This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the foll
 - Fixed the inability to specify `commit_begin`
 - Ability to specify `commit_begin` param in the config file
 - Ability to specify files and paths to ignore in the config file
+- Ability to specify a line count delta and the commit to start adding that delta 
 - Remove the "fatal: Needed a single revision" error
 - Add this README
 
@@ -45,7 +46,8 @@ The config file requires the following:
 
 1. 1st line must define the file paths ignore regex. Define it as an empty string "" if just want to define the next `commit_begin` line.
 2. 2nd line if provided, must define the `commit_begin` string.
-3. Both values must be delimited by double quotes.
+3. 3rd line if provided, must define a commit timestamp and line count delta.
+4. All values must be delimited by double quotes.
 
 These are the only rules. The variable names do not matter. The file does not even need to be a valid js file. 
 
@@ -56,6 +58,7 @@ Here's the actual `gitstatsCfg.js` I am using in my project.
 ```javascript
 const ignore="/static|public/|.json|.txt|.gitignore|.yml|.editorconfig|.lock|chart/config.js"
 const commit_begin="2add5d6"
+const commit_delta="1619306440,703" 
 
 export { // module.exports = { // if will import with require
   ignore,
@@ -66,9 +69,19 @@ export { // module.exports = { // if will import with require
 Rules:
 1. 1st line must define the file paths ignore regex. Define it as an empty string "" if just want to define the next `commit_begin` line.
 2. 2nd line if provided, must define the `commit_begin` string.
-3. Both values must be delimited by double quotes.
+3. 3rd line if provided, must define a commit timestamp and line count delta.
+4. All values must be delimited by double quotes.
 */
 ```
+
+The 3rd line is used to offset a miscount due to adding or remove non-source codes but counted by gitstats. Specify the delta to be added to that commit.
+
+The commit timestamp can be obtained via 
+
+```bash
+git show -s --format=%ct <commit>
+```
+
 
 ### Other Uses for the Config File
 

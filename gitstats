@@ -175,6 +175,7 @@ class DataCollector:
 		self.total_lines = 0
 		self.total_lines_added = 0
 		self.total_lines_removed = 0
+		self.loc_delta = 0
 
 		# size
 		self.total_size = 0
@@ -216,6 +217,12 @@ class DataCollector:
 				conf['commit_begin'] = begins[1] if len(begins) > 2 else ''
 				if conf['commit_begin']:
 					print 'Using commit_begin =', conf['commit_begin']
+				delta_line = cfg_file.readline()
+				deltas_strs = delta_line and delta_line.split('"') 
+				deltas = len(deltas_strs) > 1 and deltas_strs[1].split(',') 
+				if len(deltas) > 1:
+					self.loc_delta = int(deltas[1])
+					self.loc_delta_timestamp = int(deltas[0])
 	
 	##
 	# Load cacheable data
@@ -720,7 +727,7 @@ class GitDataCollector(DataCollector):
 		return self.total_files
 	
 	def getTotalLOC(self):
-		return self.total_lines
+		return self.total_lines + self.loc_delta
 
 	def getTotalSize(self):
 		return self.total_size
@@ -1148,7 +1155,8 @@ class HTMLReportCreator(ReportCreator):
 
 		fg = open(path + '/lines_of_code.dat', 'w')
 		for stamp in sorted(data.changes_by_date.keys()):
-			fg.write('%d %d\n' % (stamp, data.changes_by_date[stamp]['lines']))
+			delta = data.loc_delta if data.loc_delta and stamp >= data.loc_delta_timestamp else 0
+			fg.write('%d %d\n' % (stamp, delta+data.changes_by_date[stamp]['lines']))
 		fg.close()
 
 		f.write('</body></html>')
