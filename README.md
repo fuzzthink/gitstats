@@ -15,7 +15,7 @@ This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the foll
 
 The greatly appreciated but ignored gitstats has been abandoned since 2012 (only 2 out of 56 pull requests were merge, last was in 2012).
 
-If you want to use a well maintained fork/version of gitstats, I highly recommend [repostat](https://github.com/vifactor/repostat). I would have as well if only it had included ignore paths. If one day repostats has added this, please let me know by raising an issue.  
+If you want to use a well maintained fork/version of gitstats, I highly recommend [repostat](https://github.com/vifactor/repostat). I would have as well if only it had included ignore paths or delta abilities. If one day repostat has these, please let me know by raising an issue.  
 
 If you want to develop futher on gitstats, here are some interesting forks worth taking a look or to fork from:
 
