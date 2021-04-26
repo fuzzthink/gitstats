@@ -1099,6 +1099,7 @@ class HTMLReportCreator(ReportCreator):
 		f.write('<dt>Total files</dt><dd>%d</dd>' % data.getTotalFiles())
 		f.write('<dt>Total lines</dt><dd>%d</dd>' % data.getTotalLOC())
 		try:
+			f.write('<dt>Average lines/file</dt><dd>%d</dd>' % int(data.getTotalLOC() / data.getTotalFiles()))
 			f.write('<dt>Average file size</dt><dd>%.2f bytes</dd>' % (float(data.getTotalSize()) / data.getTotalFiles()))
 		except ZeroDivisionError:
 			pass
