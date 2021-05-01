@@ -2,12 +2,14 @@
 
 This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the following fixes/enhancements:
 
-- Ability to read a gitstats config file in source repo
+- Ability to read a gitstats config file in the target source repo
+- Fixed the "fatal: Needed a single revision" error
 - Fixed the inability to specify `commit_begin`
 - Ability to specify `commit_begin` param in the config file
 - Ability to specify files and paths to ignore in the config file
 - Ability to specify timestamp and line count delta pairs to correct the miscounts
-- Remove the "fatal: Needed a single revision" error
+- Added Lines of Code by Month chart
+- Made the Commits by Month chart from single pixel thin bars to full width bars
 - Add this README
 
 
