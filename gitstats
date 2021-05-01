@@ -1191,7 +1191,6 @@ class HTMLReportCreator(ReportCreator):
 		prv_locs = 0
 		for i, yymm in enumerate(sorted(loc_cum.keys())):
 			loc = loc_cum[yymm] if i == 0 else loc_cum[yymm] - prv_locs
-			print(yymm, loc, loc_cum[yymm], prv_locs)
 			fg.write('%s %s\n' % (yymm, loc))
 			prv_locs += loc
 		fg.close()
