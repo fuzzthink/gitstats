@@ -868,7 +868,7 @@ class HTMLReportCreator(ReportCreator):
 		for i in range(0, 24):
 			if i in hour_of_day:
 				r = 127 + int((float(hour_of_day[i]) / data.activity_by_hour_of_day_busiest) * 128)
-				f.write('<td style="background-color: rgb(%d, 0, 0)">%.2f</td>' % (r, (100.0 * hour_of_day[i]) / totalcommits))
+				f.write('<td style="background-color: rgb(%d, 0, 0)">%.1f</td>' % (r, (100.0 * hour_of_day[i]) / totalcommits))
 			else:
 				f.write('<td>0.00</td>')
 		f.write('</tr></table>')
@@ -895,7 +895,7 @@ class HTMLReportCreator(ReportCreator):
 			f.write('<tr>')
 			f.write('<th>%s</th>' % (WEEKDAYS[d]))
 			if d in day_of_week:
-				f.write('<td>%d (%.2f%%)</td>' % (day_of_week[d], (100.0 * day_of_week[d]) / totalcommits))
+				f.write('<td>%d (%.1f%%)</td>' % (day_of_week[d], (100.0 * day_of_week[d]) / totalcommits))
 			else:
 				f.write('<td>0</td>')
 			f.write('</tr>')
@@ -939,7 +939,7 @@ class HTMLReportCreator(ReportCreator):
 			commits = 0
 			if mm in data.activity_by_month_of_year:
 				commits = data.activity_by_month_of_year[mm]
-			f.write('<tr><td>%d</td><td>%d (%.2f %%)</td></tr>' % (mm, commits, (100.0 * commits) / data.getTotalCommits()))
+			f.write('<tr><td>%d</td><td>%d (%.1f %%)</td></tr>' % (mm, commits, (100.0 * commits) / data.getTotalCommits()))
 			fp.write('%d %d\n' % (mm, commits))
 		fp.close()
 		f.write('</table></div>')
@@ -964,7 +964,7 @@ class HTMLReportCreator(ReportCreator):
 		f.write(html_header(2, 'Commits by Year'))
 		f.write('<div class="vtable"><table><tr><th>Year</th><th>Commits (% of all)</th><th>Lines added</th><th>Lines removed</th></tr>')
 		for yy in reversed(sorted(data.commits_by_year.keys())):
-			f.write('<tr><td>%s</td><td>%d (%.2f%%)</td><td>%d</td><td>%d</td></tr>' % (yy, data.commits_by_year.get(yy,0), (100.0 * data.commits_by_year.get(yy,0)) / data.getTotalCommits(), data.lines_added_by_year.get(yy,0), data.lines_removed_by_year.get(yy,0)))
+			f.write('<tr><td>%s</td><td>%d (%.1f%%)</td><td>%d</td><td>%d</td></tr>' % (yy, data.commits_by_year.get(yy,0), (100.0 * data.commits_by_year.get(yy,0)) / data.getTotalCommits(), data.lines_added_by_year.get(yy,0), data.lines_removed_by_year.get(yy,0)))
 		f.write('</table></div>')
 		f.write('<img src="commits_by_year.png" alt="Commits by Year">')
 		fg = open(path + '/commits_by_year.dat', 'w')
@@ -1002,7 +1002,7 @@ class HTMLReportCreator(ReportCreator):
 		f.write('<tr><th>Author</th><th>Commits (%)</th><th>+ lines</th><th>- lines</th><th>First commit</th><th>Last commit</th><th class="unsortable">Age</th><th>Active days</th><th># by commits</th></tr>')
 		for author in data.getAuthors(conf['max_authors']):
 			info = data.getAuthorInfo(author)
-			f.write('<tr><td>%s</td><td>%d (%.2f%%)</td><td>%d</td><td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%d</td></tr>' % (author, info['commits'], info['commits_frac'], info['lines_added'], info['lines_removed'], info['date_first'], info['date_last'], info['timedelta'], len(info['active_days']), info['place_by_commits']))
+			f.write('<tr><td>%s</td><td>%d (%.1f%%)</td><td>%d</td><td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%d</td></tr>' % (author, info['commits'], info['commits_frac'], info['lines_added'], info['lines_removed'], info['date_first'], info['date_last'], info['timedelta'], len(info['active_days']), info['place_by_commits']))
 		f.write('</table>')
 
 		allauthors = data.getAuthors()
@@ -1062,7 +1062,7 @@ class HTMLReportCreator(ReportCreator):
 			authors.reverse()
 			commits = data.author_of_month[yymm][authors[0]]
 			next = ', '.join(authors[1:conf['authors_top']+1])
-			f.write('<tr><td>%s</td><td>%s</td><td>%d (%.2f%% of %d)</td><td>%s</td><td>%d</td></tr>' % (yymm, authors[0], commits, (100.0 * commits) / data.commits_by_month[yymm], data.commits_by_month[yymm], next, len(authors)))
+			f.write('<tr><td>%s</td><td>%s</td><td>%d (%.1f%% of %d)</td><td>%s</td><td>%d</td></tr>' % (yymm, authors[0], commits, (100.0 * commits) / data.commits_by_month[yymm], data.commits_by_month[yymm], next, len(authors)))
 
 		f.write('</table>')
 
@@ -1074,7 +1074,7 @@ class HTMLReportCreator(ReportCreator):
 			authors.reverse()
 			commits = data.author_of_year[yy][authors[0]]
 			next = ', '.join(authors[1:conf['authors_top']+1])
-			f.write('<tr><td>%s</td><td>%s</td><td>%d (%.2f%% of %d)</td><td>%s</td><td>%d</td></tr>' % (yy, authors[0], commits, (100.0 * commits) / data.commits_by_year[yy], data.commits_by_year[yy], next, len(authors)))
+			f.write('<tr><td>%s</td><td>%s</td><td>%d (%.1f%% of %d)</td><td>%s</td><td>%d</td></tr>' % (yy, authors[0], commits, (100.0 * commits) / data.commits_by_year[yy], data.commits_by_year[yy], next, len(authors)))
 		f.write('</table>')
 
 		# Domains
@@ -1092,7 +1092,7 @@ class HTMLReportCreator(ReportCreator):
 			n += 1
 			info = data.getDomainInfo(domain)
 			fp.write('%s %d %d\n' % (domain, n , info['commits']))
-			f.write('<tr><th>%s</th><td>%d (%.2f%%)</td></tr>' % (domain, info['commits'], (100.0 * info['commits'] / totalcommits)))
+			f.write('<tr><th>%s</th><td>%d (%.1f%%)</td></tr>' % (domain, info['commits'], (100.0 * info['commits'] / totalcommits)))
 		f.write('</table></div>')
 		f.write('<img src="domains.png" alt="Commits by Domains">')
 		fp.close()
@@ -1112,7 +1112,7 @@ class HTMLReportCreator(ReportCreator):
 		f.write('<dt>Total lines</dt><dd>%d</dd>' % data.getTotalLOC())
 		try:
 			f.write('<dt>Average lines/file</dt><dd>%d</dd>' % int(data.getTotalLOC() / data.getTotalFiles()))
-			f.write('<dt>Average file size</dt><dd>%.2f bytes</dd>' % (float(data.getTotalSize()) / data.getTotalFiles()))
+			f.write('<dt>Average file size</dt><dd>%d bytes</dd>' % (int(data.getTotalSize()) / data.getTotalFiles()))
 		except ZeroDivisionError:
 			pass
 		f.write('</dl>\n')
@@ -1146,7 +1146,9 @@ class HTMLReportCreator(ReportCreator):
 				loc_percentage = (100.0 * lines) / data.getTotalLOC()
 			except ZeroDivisionError:
 				loc_percentage = 0
-			f.write('<tr><td>%s</td><td>%d (%.2f%%)</td><td>%d (%.2f%%)</td><td>%d</td></tr>' % (ext, files, (100.0 * files) / data.getTotalFiles(), lines, loc_percentage, lines / files))
+			f.write('<tr><td>%s</td><td>%d (%.1f%%)</td><td>%d (%.1f%%)</td><td>%d</td></tr>' %
+			  (ext, files, (100.0 * files) / data.getTotalFiles(), lines, loc_percentage, lines / files)
+			)
 		f.write('</table>')
 
 		f.write('</body></html>')
@@ -1207,7 +1209,7 @@ class HTMLReportCreator(ReportCreator):
 		f.write('<dl>')
 		f.write('<dt>Total tags</dt><dd>%d</dd>' % len(data.tags))
 		if len(data.tags) > 0:
-			f.write('<dt>Average commits per tag</dt><dd>%.2f</dd>' % (1.0 * data.getTotalCommits() / len(data.tags)))
+			f.write('<dt>Average commits per tag</dt><dd>%.1f</dd>' % (1.0 * data.getTotalCommits() / len(data.tags)))
 		f.write('</dl>')
 
 		f.write('<table class="tags">')
@@ -1219,7 +1221,9 @@ class HTMLReportCreator(ReportCreator):
 			self.authors_by_commits = getkeyssortedbyvalues(data.tags[tag]['authors'])
 			for i in reversed(self.authors_by_commits):
 				authorinfo.append('%s (%d)' % (i, data.tags[tag]['authors'][i]))
-			f.write('<tr><td>%s</td><td>%s</td><td>%d</td><td>%s</td></tr>' % (tag, data.tags[tag]['date'], data.tags[tag]['commits'], ', '.join(authorinfo)))
+			f.write('<tr><td>%s</td><td>%s</td><td>%d</td><td>%s</td></tr>' %
+			 (tag, data.tags[tag]['date'], data.tags[tag]['commits'], ', '.join(authorinfo))
+			)
 		f.write('</table>')
 
 		f.write('</body></html>')
@@ -1560,7 +1564,7 @@ class GitStats:
 
 		time_end = time.time()
 		exectime_internal = time_end - time_start
-		print 'Execution time %.5f secs, %.5f secs (%.2f %%) in external commands)' % (exectime_internal, exectime_external, (100.0 * exectime_external) / exectime_internal)
+		print 'Execution time %.5f secs, %.5f secs (%.1f %%) in external commands)' % (exectime_internal, exectime_external, (100.0 * exectime_external) / exectime_internal)
 		if sys.stdin.isatty():
 			print 'You may now run:'
 			print

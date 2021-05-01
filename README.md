@@ -57,7 +57,7 @@ Specifying the `ignore` file paths is most likely not enough since the LOC per c
 Here's the actual `gitstatsCfg.js` I am using in my project.
 
 ```javascript
-const ignore="/static|public/|.json|.txt|.gitignore|.yml|.editorconfig|.lock|chart/config.js"
+const ignore="/static|public/|.json|.txt|.md|.gitignore|.yml|.editorconfig|.lock|chart/config.js"
 const commit_begin="2add5d6"
 const commit_delta="1616997336,-600|1619306440,1120" 
 
