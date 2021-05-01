@@ -13,6 +13,7 @@ import subprocess
 import sys
 import time
 import zlib
+from datetime import datetime as dtdt
 
 if sys.version_info < (2, 6):
 	print >> sys.stderr, "Python 2.6 or higher is required for gitstats"
@@ -175,7 +176,10 @@ class DataCollector:
 		self.total_lines = 0
 		self.total_lines_added = 0
 		self.total_lines_removed = 0
-		self.loc_delta = 0
+
+		# commit deltas
+		self.loc_deltas = []
+		self.delta_timestamps = []
 
 		# size
 		self.total_size = 0
@@ -212,17 +216,21 @@ class DataCollector:
 				conf['ignore'] = ignores[1] if len(ignores) > 2 else ''
 				if conf['ignore']:
 					print 'Found .gitstatsignore, will filter files matched'
+
 				begin_line = cfg_file.readline()
-				begins = begin_line and begin_line.split('"') 
-				conf['commit_begin'] = begins[1] if len(begins) > 2 else ''
+				begin_strs = begin_line and begin_line.split('"') 
+				conf['commit_begin'] = begin_strs[1] if len(begin_strs) > 2 else ''
 				if conf['commit_begin']:
 					print 'Using commit_begin =', conf['commit_begin']
+
 				delta_line = cfg_file.readline()
-				deltas_strs = delta_line and delta_line.split('"') 
-				deltas = len(deltas_strs) > 1 and deltas_strs[1].split(',') 
-				if len(deltas) > 1:
-					self.loc_delta = int(deltas[1])
-					self.loc_delta_timestamp = int(deltas[0])
+				delta_strs = delta_line and delta_line.split('"') 
+				if len(delta_strs) > 1:
+					for pair_str in delta_strs[1].split('|'):
+						ts, delta = pair_str.split(',') 
+						if delta:
+							self.loc_deltas.append(int(delta))
+							self.delta_timestamps.append(int(ts))
 	
 	##
 	# Load cacheable data
@@ -727,7 +735,7 @@ class GitDataCollector(DataCollector):
 		return self.total_files
 	
 	def getTotalLOC(self):
-		return self.total_lines + self.loc_delta
+		return self.total_lines + sum(self.loc_deltas)
 
 	def getTotalSize(self):
 		return self.total_size
@@ -756,6 +764,7 @@ class HTMLReportCreator(ReportCreator):
 	def create(self, data, path):
 		ReportCreator.create(self, data, path)
 		self.title = data.projectname
+		self.month_strs = []
 
 		# copy static files. Looks in the binary directory, ../share/gitstats and /usr/share/gitstats
 		binarypath = os.path.dirname(os.path.abspath(__file__))
@@ -936,15 +945,18 @@ class HTMLReportCreator(ReportCreator):
 		f.write('</table></div>')
 		f.write('<img src="month_of_year.png" alt="Month of Year">')
 
-		# Commits by year/month
-		f.write(html_header(2, 'Commits by year/month'))
+		## Commits by month
+		f.write(html_header(2, 'Commits by Month'))
+
 		f.write('<div class="vtable"><table><tr><th>Month</th><th>Commits</th><th>Lines added</th><th>Lines removed</th></tr>')
 		for yymm in reversed(sorted(data.commits_by_month.keys())):
 			f.write('<tr><td>%s</td><td>%d</td><td>%d</td><td>%d</td></tr>' % (yymm, data.commits_by_month.get(yymm,0), data.lines_added_by_month.get(yymm,0), data.lines_removed_by_month.get(yymm,0)))
 		f.write('</table></div>')
+
 		f.write('<img src="commits_by_year_month.png" alt="Commits by year/month">')
 		fg = open(path + '/commits_by_year_month.dat', 'w')
 		for yymm in sorted(data.commits_by_month.keys()):
+			self.month_strs.append(yymm)
 			fg.write('%s %s\n' % (yymm, data.commits_by_month[yymm]))
 		fg.close()
 
@@ -1155,12 +1167,35 @@ class HTMLReportCreator(ReportCreator):
 		f.write('<img src="lines_of_code.png" alt="Lines of Code">')
 
 		fg = open(path + '/lines_of_code.dat', 'w')
+		loc_cum = {}
+		delta = 0
 		for stamp in sorted(data.changes_by_date.keys()):
-			delta = data.loc_delta if data.loc_delta and stamp >= data.loc_delta_timestamp else 0
-			fg.write('%d %d\n' % (stamp, delta+data.changes_by_date[stamp]['lines']))
+			if len(data.loc_deltas) > 0 and stamp >= data.delta_timestamps[0]:
+				delta += data.loc_deltas[0]
+				data.loc_deltas.pop(0)
+				data.delta_timestamps.pop(0)
+				print 'LOC delta added:', delta
+			loc = delta + data.changes_by_date[stamp]['lines']
+			dt = dtdt.fromtimestamp(stamp)
+			datekey = '%d-%02d' % (dt.year, dt.month)
+			loc_cum[datekey] = loc
+			fg.write('%d %d\n' % (stamp, loc))
 		fg.close()
 
 		f.write('</body></html>')
+
+		## LOCs by month
+		fg = open(path + '/LOC_by_month.dat', 'w')
+		f.write(html_header(2, 'Lines of Code by Month'))
+		f.write('<img src="LOC_by_month.png" alt="Lines of Code by month">')
+		prv_locs = 0
+		for i, yymm in enumerate(sorted(loc_cum.keys())):
+			loc = loc_cum[yymm] if i == 0 else loc_cum[yymm] - prv_locs
+			print(yymm, loc, loc_cum[yymm], prv_locs)
+			fg.write('%s %s\n' % (yymm, loc))
+			prv_locs += loc
+		fg.close()
+
 		f.close()
 
 		###
@@ -1262,6 +1297,7 @@ plot 'month_of_year.dat' using 1:2:(0.5) w boxes fs solid
 		# commits_by_year_month
 		f = open(path + '/commits_by_year_month.plot', 'w')
 		f.write(GNUPLOT_COMMON)
+		yymm_csv = '", "'.join(self.month_strs) # Eg: '2021-01", "2021-02", "2021-03' - to set xtics
 		f.write(
 """
 set output 'commits_by_year_month.png'
@@ -1270,12 +1306,13 @@ set yrange [0:]
 set xdata time
 set timefmt "%Y-%m"
 set format x "%Y-%m"
-set xtics rotate
-set bmargin 5
+set bmargin 4
+set xtics ("{}") rotate by -45
+set boxwidth .8 relative
 set grid y
 set ylabel "Commits"
-plot 'commits_by_year_month.dat' using 1:2:(0.5) w boxes fs solid
-""")
+plot 'commits_by_year_month.dat' using 1:2 w boxes fs solid
+""".format(yymm_csv))
 		f.close()
 
 		# commits_by_year
@@ -1286,7 +1323,7 @@ plot 'commits_by_year_month.dat' using 1:2:(0.5) w boxes fs solid
 set output 'commits_by_year.png'
 unset key
 set yrange [0:]
-set xtics 1 rotate
+set xtics 1
 set grid y
 set ylabel "Commits"
 set yrange [0:]
@@ -1327,10 +1364,30 @@ set timefmt "%s"
 set format x "%Y-%m-%d"
 set grid y
 set ylabel "Lines"
-set xtics rotate
+set xtics rotate by -45
 set bmargin 6
 plot 'lines_of_code.dat' using 1:2 w lines
 """)
+		f.close()
+
+		# Lines of Code by Month
+		f = open(path + '/LOC_by_month.plot', 'w')
+		f.write(GNUPLOT_COMMON)
+		f.write(
+"""
+set output 'LOC_by_month.png'
+unset key
+set yrange [0:]
+set xdata time
+set timefmt "%Y-%m"
+set format x "%Y-%m"
+set bmargin 4
+set xtics ("{}") rotate by -45
+set boxwidth .8 relative
+set grid y
+set ylabel "Lines"
+plot 'LOC_by_month.dat' using 1:2 w boxes fs solid
+""".format(yymm_csv))
 		f.close()
 
 		# Lines of Code Added per author

@@ -6,7 +6,7 @@ This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the foll
 - Fixed the inability to specify `commit_begin`
 - Ability to specify `commit_begin` param in the config file
 - Ability to specify files and paths to ignore in the config file
-- Ability to specify a line count delta and the commit to start adding that delta 
+- Ability to specify timestamp and line count delta pairs to correct the miscounts
 - Remove the "fatal: Needed a single revision" error
 - Add this README
 
@@ -19,10 +19,8 @@ If you want to use a well maintained fork/version of gitstats, I highly recommen
 
 If you want to develop futher on gitstats, here are some interesting forks worth taking a look or to fork from:
 
-- [laserb's](https://github.com/laserb/gitstats/commits/master) - added changes around authors.
-- [matt-chalmer's fork of laserb's](https://github.com/matt-chalmers/gitstats/commits/master) - added some changes on top of laserb's.
-- [tonylixu's](https://github.com/tonylixu/gitstats/commits/master) - added some visualizations and styling changes.
 - [KaivnD's](https://github.com/KaivnD/gitstats/commits/master) - Refactored to split the big file into multiple files, good fork to based off from to understand the code and make your own changes.
+- [matt-chalmer's](https://github.com/matt-chalmers/gitstats/commits/master) - more changes on top of [laserb's](https://github.com/laserb/gitstats/commits/master) fork which added changes around authors.
 
 If you know of other good forks with great features added, let me know and I will add to the list.
 
@@ -59,7 +57,7 @@ Here's the actual `gitstatsCfg.js` I am using in my project.
 ```javascript
 const ignore="/static|public/|.json|.txt|.gitignore|.yml|.editorconfig|.lock|chart/config.js"
 const commit_begin="2add5d6"
-const commit_delta="1619306440,703" 
+const commit_delta="1616997336,-600|1619306440,1120" 
 
 export { // module.exports = { // if will import with require
   ignore,
@@ -70,12 +68,18 @@ export { // module.exports = { // if will import with require
 Rules:
 1. 1st line must define the file paths ignore regex. Define it as an empty string "" if just want to define the next `commit_begin` line.
 2. 2nd line if provided, must define the `commit_begin` string.
-3. 3rd line if provided, must define a commit timestamp and line count delta.
-4. All values must be delimited by double quotes.
+3. 3rd line if provided, must define commit timestamp, and line count delta pairs.
+  The pair is separated by a comma and pairs are separated by a '|'.
+  Earlier commit deltas must come first.
+4. All values must be delimited by double quotes, which can not be at the start of the line.
+
+To get timestamp of a commit:
+git show -s --format=%ct <commit>
+
 */
 ```
 
-The 3rd line is used to offset a miscount due to adding or remove non-source codes but counted by gitstats. Specify the timestamp of the commit to add the delta, followed by a comma, and the line count to be added.
+The 3rd line is used to offset miscounts due to adding or remove non-source code files but were counted by gitstats. Specify the timestamp of the commit to be adjusted, followed by a comma, and the line count to be added or subtracted.
 
 The commit timestamp can be obtained via 
 
