@@ -49,6 +49,7 @@ The config file requires the following:
 2. 2nd line if provided, must define the `commit_begin` string.
 3. 3rd line if provided, must define a commit timestamp and line count delta.
 4. All values must be delimited by double quotes.
+5. To define 2nd or 3rd line without specifying the previous lines, define them as empty strings.
 
 These are the only rules. The variable names do not matter. The file does not even need to be a valid js file. 
 
@@ -68,12 +69,14 @@ export { // module.exports = { // if will import with require
 
 /**
 Rules:
-1. 1st line must define the file paths ignore regex. Define it as an empty string "" if just want to define the next `commit_begin` line.
+1. 1st line must define the file paths ignore regex.
 2. 2nd line if provided, must define the `commit_begin` string.
 3. 3rd line if provided, must define commit timestamp, and line count delta pairs.
   The pair is separated by a comma and pairs are separated by a '|'.
   Earlier commit deltas must come first.
 4. All values must be delimited by double quotes, which can not be at the start of the line.
+5. To define 2nd or 3rd line without specifying the previous lines, define them as empty strings.
+
 
 To get timestamp of a commit:
 git show -s --format=%ct <commit>
