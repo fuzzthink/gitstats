@@ -8,9 +8,11 @@ This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the foll
 - Ability to specify `commit_begin` param in the config file
 - Ability to specify files and paths to ignore in the config file
 - Ability to specify timestamp and line count delta pairs to correct the miscounts
+- Ability to remove the Lines of Code by Author chart
 - Added Lines of Code by Month chart
 - Made the Commits by Month chart from single pixel thin bars to full width bars
 - Add this README
+        show_author_loc_chart=false
 
 
 ## Background, Other Forks
@@ -47,9 +49,13 @@ The config file requires the following:
 
 1. 1st line must define the file paths ignore regex. Define it as an empty string "" if just want to define the next `commit_begin` line.
 2. 2nd line if provided, must define the `commit_begin` string.
-3. 3rd line if provided, must define a commit timestamp and line count delta.
-4. All values must be delimited by double quotes.
-5. To define 2nd or 3rd line without specifying the previous lines, define them as empty strings.
+3. 3rd line if provided, must define a commit timestamp and line count delta pairs.
+  The pair is separated by a comma and pairs are separated by a '|'.
+  Earlier commit deltas must come first.
+4. 4th line if provided, must contain 'show_author_loc_chart=false', which will skip the author LOC charts.
+  The charts seems to only show lines added and not subtracted, which is useless. 
+5. All values must be delimited by double quotes.
+6. To define 2nd or 3rd line without specifying the previous lines, define them as empty strings.
 
 These are the only rules. The variable names do not matter. The file does not even need to be a valid js file. 
 
@@ -74,8 +80,9 @@ Rules:
 3. 3rd line if provided, must define commit timestamp, and line count delta pairs.
   The pair is separated by a comma and pairs are separated by a '|'.
   Earlier commit deltas must come first.
-4. All values must be delimited by double quotes, which can not be at the start of the line.
-5. To define 2nd or 3rd line without specifying the previous lines, define them as empty strings.
+4. 4th line if provided, must contain 'show_author_loc_chart=false', which will skip the author LOC charts.
+5. All values must be delimited by double quotes, which can not be at the start of the line.
+6. To define 2nd or 3rd line without specifying the previous lines, define them as empty strings.
 
 
 To get timestamp of a commit:

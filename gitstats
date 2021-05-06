@@ -179,7 +179,8 @@ class DataCollector:
 
 		# commit deltas
 		self.loc_deltas = []
-		self.delta_timestamps = []
+		self.loc_delta_ts = []
+		self.show_author_loc_chart = True
 
 		# size
 		self.total_size = 0
@@ -230,8 +231,13 @@ class DataCollector:
 						ts, delta = pair_str.split(',') 
 						if delta:
 							self.loc_deltas.append(int(delta))
-							self.delta_timestamps.append(int(ts))
+							self.loc_delta_ts.append(int(ts))
 	
+				show_author_loc_chart_line = cfg_file.readline()
+				flag_strs = show_author_loc_chart_line and show_author_loc_chart_line.split('=') 
+				if len(flag_strs) > 1 and flag_strs[1].startswith('false'):
+					self.show_author_loc_chart = False
+
 	##
 	# Load cacheable data
 	def loadCache(self, cachefile):
@@ -765,6 +771,7 @@ class HTMLReportCreator(ReportCreator):
 		ReportCreator.create(self, data, path)
 		self.title = data.projectname
 		self.month_strs = []
+		self.show_author_loc_chart = data.show_author_loc_chart
 
 		# copy static files. Looks in the binary directory, ../share/gitstats and /usr/share/gitstats
 		binarypath = os.path.dirname(os.path.abspath(__file__))
@@ -1010,10 +1017,11 @@ class HTMLReportCreator(ReportCreator):
 			rest = allauthors[conf['max_authors']:]
 			f.write('<p class="moreauthors">These didn\'t make it to the top: %s</p>' % ', '.join(rest))
 
-		f.write(html_header(2, 'Cumulated Added Lines of Code per Author'))
-		f.write('<img src="lines_of_code_by_author.png" alt="Lines of code per Author">')
-		if len(allauthors) > conf['max_authors']:
-			f.write('<p class="moreauthors">Only top %d authors shown</p>' % conf['max_authors'])
+		if self.show_author_loc_chart:
+			f.write(html_header(2, 'Cumulated Added Lines of Code per Author'))
+			f.write('<img src="lines_of_code_by_author.png" alt="Lines of code per Author">')
+			if len(allauthors) > conf['max_authors']:
+				f.write('<p class="moreauthors">Only top %d authors shown</p>' % conf['max_authors'])
 
 		f.write(html_header(2, 'Commits per Author'))
 		f.write('<img src="commits_by_author.png" alt="Commits per Author">')
@@ -1171,11 +1179,11 @@ class HTMLReportCreator(ReportCreator):
 		fg = open(path + '/lines_of_code.dat', 'w')
 		loc_cum = {}
 		delta = 0
+		i = 0
 		for stamp in sorted(data.changes_by_date.keys()):
-			if len(data.loc_deltas) > 0 and stamp >= data.delta_timestamps[0]:
-				delta += data.loc_deltas[0]
-				data.loc_deltas.pop(0)
-				data.delta_timestamps.pop(0)
+			if i < len(data.loc_deltas) and stamp >= data.loc_delta_ts[i]:
+				delta += data.loc_deltas[i]
+				i += 1
 				print 'LOC delta added:', delta
 			loc = delta + data.changes_by_date[stamp]['lines']
 			dt = dtdt.fromtimestamp(stamp)
@@ -1359,6 +1367,7 @@ plot 'files_by_date.dat' using 1:2 w steps
 		f.write(GNUPLOT_COMMON)
 		f.write(
 """
+set terminal png transparent size 640,480
 set output 'lines_of_code.png'
 unset key
 set yrange [0:]
@@ -1394,9 +1403,10 @@ plot 'LOC_by_month.dat' using 1:2 w boxes fs solid
 		f.close()
 
 		# Lines of Code Added per author
-		f = open(path + '/lines_of_code_by_author.plot', 'w')
-		f.write(GNUPLOT_COMMON)
-		f.write(
+		if self.show_author_loc_chart:
+			f = open(path + '/lines_of_code_by_author.plot', 'w')
+			f.write(GNUPLOT_COMMON)
+			f.write(
 """
 set terminal png transparent size 640,480
 set output 'lines_of_code_by_author.png'
@@ -1411,16 +1421,15 @@ set xtics rotate
 set bmargin 6
 plot """
 )
-		i = 1
-		plots = []
-		for a in self.authors_to_plot:
-			i = i + 1
-			author = a.replace("\"", "\\\"").replace("`", "")
-			plots.append("""'lines_of_code_by_author.dat' using 1:%d title "%s" w lines""" % (i, author))
-		f.write(", ".join(plots))
-		f.write('\n')
-
-		f.close()
+			i = 1
+			plots = []
+			for a in self.authors_to_plot:
+				i = i + 1
+				author = a.replace("\"", "\\\"").replace("`", "")
+				plots.append("""'lines_of_code_by_author.dat' using 1:%d title "%s" w lines""" % (i, author))
+			f.write(", ".join(plots))
+			f.write('\n')
+			f.close()
 
 		# Commits per author
 		f = open(path + '/commits_by_author.plot', 'w')
