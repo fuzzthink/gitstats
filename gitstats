@@ -1367,7 +1367,7 @@ plot 'files_by_date.dat' using 1:2 w steps
 		f.write(GNUPLOT_COMMON)
 		f.write(
 """
-set terminal png transparent size 640,480
+set terminal png transparent size 1080,720
 set output 'lines_of_code.png'
 unset key
 set yrange [0:]
@@ -1387,6 +1387,7 @@ plot 'lines_of_code.dat' using 1:2 w lines
 		f.write(GNUPLOT_COMMON)
 		f.write(
 """
+set terminal png transparent size 1080,420
 set output 'LOC_by_month.png'
 unset key
 set yrange [0:]

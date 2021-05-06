@@ -10,9 +10,9 @@ This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the foll
 - Ability to specify timestamp and line count delta pairs to correct the miscounts
 - Ability to remove the Lines of Code by Author chart
 - Added Lines of Code by Month chart
+- Enlarge Lines of Code charts
 - Made the Commits by Month chart from single pixel thin bars to full width bars
 - Add this README
-        show_author_loc_chart=false
 
 
 ## Background, Other Forks
