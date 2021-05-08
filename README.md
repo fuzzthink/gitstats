@@ -9,6 +9,7 @@ This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the foll
 - Ability to specify files and paths to ignore in the config file
 - Ability to specify timestamp and line count delta pairs to correct the miscounts
 - Ability to remove the Lines of Code by Author chart
+- Change the Author chart from just added lines to more useful LOC count
 - Added Lines of Code by Month chart
 - Enlarge Lines of Code charts
 - Made the Commits by Month chart from single pixel thin bars to full width bars
@@ -47,19 +48,24 @@ The config file is a javascript file since both js and non-js sources (like this
 
 The config file requires the following:
 
-1. 1st line must define the file paths ignore regex. Define it as an empty string "" if just want to define the next `commit_begin` line.
+1. 1st line must define `ignore` -- the file paths ignore regex.
 2. 2nd line if provided, must define the `commit_begin` string.
-3. 3rd line if provided, must define a commit timestamp and line count delta pairs.
+3. 3rd line if provided, must define `commit_delta` -- array of commit timestamp and line count delta pairs.
   The pair is separated by a comma and pairs are separated by a '|'.
   Earlier commit deltas must come first.
-4. 4th line if provided, must contain 'show_author_loc_chart=false', which will skip the author LOC charts.
-  The charts seems to only show lines added and not subtracted, which is useless. 
+4. 4th line if provided, must define `show_author_loc_chart=false`, to not show the useless/buggy* author LOC charts.
 5. All values must be delimited by double quotes.
-6. To define 2nd or 3rd line without specifying the previous lines, define them as empty strings.
+6. Earlier lines can not be skipped. To define later lines, define the earlier lines with empty strings.
 
-These are the only rules. The variable names do not matter. The file does not even need to be a valid js file. 
+* The author LOC charts only showed lines added, which is useless. I have fixed it by adding removed lines to it but it will not match LOC chart for single author repos if `commit_delta`'s are added. This option allows the author charts to be skipped.
 
-Specifying the `ignore` file paths is most likely not enough since the LOC per commit is done via line additions and subtractions, and there is no easy way to filter the deltas based on file paths. If you are lucky enough to have removed large files early in your history, specifying the `commit_begin` will help.
+Specifying the `ignore` will only ignore files in file reports, not LOC since the LOC per commit is done via line additions and subtractions, and there is no easy way to filter the deltas based on file paths. If you are lucky enough to have removed large files early in your history, specifying the `commit_begin` will help. To have the LOC be in similar to the LOC reported by `git ls-files ...` (see the sample javascript below), you need to specify `commit_delta` pairs. If you commit history is short, you should be able to find the deltas easily. If not, you can probably write a one-liner or simple script to find the top commits by lines changed.
+
+The commit timestamp can be obtained via 
+
+```bash
+git show -s --format=%ct <commit
+```
 
 Here's the actual `gitstatsCfg.js` I am using in my project.
 
@@ -76,30 +82,23 @@ export { // module.exports = { // if will import with require
 
 /**
 Rules:
-1. 1st line must define the file paths ignore regex.
-2. 2nd line if provided, must define the `commit_begin` string.
-3. 3rd line if provided, must define commit timestamp, and line count delta pairs.
+1st line must define `ignore` -- the file paths ignore regex.
+2nd line if provided, must define the `commit_begin` string.
+3rd line if provided, must define `commit_delta` -- array of commit timestamp and line count delta pairs.
   The pair is separated by a comma and pairs are separated by a '|'.
   Earlier commit deltas must come first.
-4. 4th line if provided, must contain 'show_author_loc_chart=false', which will skip the author LOC charts.
-5. All values must be delimited by double quotes, which can not be at the start of the line.
-6. To define 2nd or 3rd line without specifying the previous lines, define them as empty strings.
+4th line if provided, must define `show_author_loc_chart=false` to not show the buggy author LOC charts.
+
+* All values must be delimited by double quotes.
+* Earlier lines can not be skipped. To define later lines, define the earlier lines with empty strings.
 
 
 To get timestamp of a commit:
 git show -s --format=%ct <commit>
 
+See https://github.com/fuzzthink/gitstats for details.
 */
 ```
-
-The 3rd line is used to offset miscounts due to adding or remove non-source code files but were counted by gitstats. Specify the timestamp of the commit to be adjusted, followed by a comma, and the line count to be added or subtracted.
-
-The commit timestamp can be obtained via 
-
-```bash
-git show -s --format=%ct <commit>
-```
-
 
 ### Other Uses for the Config File
 

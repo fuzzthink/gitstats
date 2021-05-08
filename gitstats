@@ -212,30 +212,31 @@ class DataCollector:
 		cfg_filepath = os.path.join(dir, 'gitstatsCfg.js')
 		if os.path.isfile(cfg_filepath):
 			with open(cfg_filepath) as cfg_file:
-				ignore_line = cfg_file.readline()
-				ignores = ignore_line and ignore_line.split('"') 
-				conf['ignore'] = ignores[1] if len(ignores) > 2 else ''
+
+				line = cfg_file.readline()
+				ignores = line and line.split('"') 
+				conf['ignore'] = ignores[1] if 'ignore' in ignores[0] and len(ignores) > 2 else ''
 				if conf['ignore']:
 					print 'Found .gitstatsignore, will filter files matched'
 
-				begin_line = cfg_file.readline()
-				begin_strs = begin_line and begin_line.split('"') 
-				conf['commit_begin'] = begin_strs[1] if len(begin_strs) > 2 else ''
+				line = cfg_file.readline()
+				begins = line and line.split('"') 
+				conf['commit_begin'] = begins[1] if 'commit_begin' in begins[0] and len(begins) > 2 else ''
 				if conf['commit_begin']:
 					print 'Using commit_begin =', conf['commit_begin']
 
-				delta_line = cfg_file.readline()
-				delta_strs = delta_line and delta_line.split('"') 
-				if len(delta_strs) > 1:
-					for pair_str in delta_strs[1].split('|'):
+				line = cfg_file.readline()
+				deltas = line and line.split('"') 
+				if len(deltas) > 1 and 'commit_delta' in deltas[0]:
+					for pair_str in deltas[1].split('|'):
 						ts, delta = pair_str.split(',') 
 						if delta:
 							self.loc_deltas.append(int(delta))
 							self.loc_delta_ts.append(int(ts))
 	
-				show_author_loc_chart_line = cfg_file.readline()
-				flag_strs = show_author_loc_chart_line and show_author_loc_chart_line.split('=') 
-				if len(flag_strs) > 1 and flag_strs[1].startswith('false'):
+				line = cfg_file.readline()
+				flags = line and line.split('=') 
+				if len(flags) > 1 and 'show_author_loc_chart' in flags[0] and flags[1].startswith('false'):
 					self.show_author_loc_chart = False
 
 	##
@@ -525,6 +526,7 @@ class GitDataCollector(DataCollector):
 			blob_id = parts[2]
 			size = int(parts[3])
 			fullpath = parts[4]
+			# ignore will only ignore file report, not LOC
 			if conf['ignore'] and re.search(conf['ignore'], fullpath):
 				continue
 
@@ -657,6 +659,7 @@ class GitDataCollector(DataCollector):
 						if author not in self.changes_by_date_by_author[stamp]:
 							self.changes_by_date_by_author[stamp][author] = {}
 						self.changes_by_date_by_author[stamp][author]['lines_added'] = self.authors[author]['lines_added']
+						self.changes_by_date_by_author[stamp][author]['lines_removed'] = self.authors[author]['lines_removed']
 						self.changes_by_date_by_author[stamp][author]['commits'] = self.authors[author]['commits']
 						files, inserted, deleted = 0, 0, 0
 					except ValueError:
@@ -1018,7 +1021,7 @@ class HTMLReportCreator(ReportCreator):
 			f.write('<p class="moreauthors">These didn\'t make it to the top: %s</p>' % ', '.join(rest))
 
 		if self.show_author_loc_chart:
-			f.write(html_header(2, 'Cumulated Added Lines of Code per Author'))
+			f.write(html_header(2, 'Lines of Code per Author'))
 			f.write('<img src="lines_of_code_by_author.png" alt="Lines of code per Author">')
 			if len(allauthors) > conf['max_authors']:
 				f.write('<p class="moreauthors">Only top %d authors shown</p>' % conf['max_authors'])
@@ -1051,7 +1054,9 @@ class HTMLReportCreator(ReportCreator):
 			fgc.write('%d' % stamp)
 			for author in self.authors_to_plot:
 				if author in data.changes_by_date_by_author[stamp].keys():
-					lines_by_authors[author] = data.changes_by_date_by_author[stamp][author]['lines_added']
+					lines_by_authors[author] = \
+						data.changes_by_date_by_author[stamp][author]['lines_added'] - \
+						data.changes_by_date_by_author[stamp][author]['lines_removed']
 					commits_by_authors[author] = data.changes_by_date_by_author[stamp][author]['commits']
 				fgl.write(' %d' % lines_by_authors[author])
 				fgc.write(' %d' % commits_by_authors[author])
@@ -1396,7 +1401,7 @@ set timefmt "%Y-%m"
 set format x "%Y-%m"
 set bmargin 4
 set xtics ("{}") rotate by -45
-set boxwidth .8 relative
+set boxwidth .9 relative
 set grid y
 set ylabel "Lines"
 plot 'LOC_by_month.dat' using 1:2 w boxes fs solid
