@@ -1408,10 +1408,10 @@ set grid y
 set ylabel "Lines"
 set arrow from graph 0.044,first {2} to graph .956,first {2} nohead lw {3} lc rgb "#e8e8e8" back
 set arrow from graph 0.044,first {4} to graph .956,first {4} nohead lw {3} lc rgb "#e8e8e8" back
-set arrow from graph -.001,first {1} to graph 1,first {1} nohead lw 2 lc rgb "blue" back
+set arrow from graph 0.001,first {1} to graph .999,first {1} nohead lw 1 lc rgb "blue" back
 plot 'LOC_by_month.dat' using 1:2 w boxes fs solid
 """.format(yymm_csv, 
-		self.avg_loc, self.avg_loc/4, self.avg_loc/14, 3*self.avg_loc/4
+		self.avg_loc, self.avg_loc/4, self.avg_loc/14.2, 3*self.avg_loc/4
 	))
 		f.close()
 # arrow:
