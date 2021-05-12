@@ -1408,9 +1408,9 @@ set ylabel "{1}" font ",13" rotate by 0 offset 11,0
 set arrow from graph 0.044,first {2} to graph .956,first {2} nohead lw {3} lc rgb "#e8e8e8" back
 set arrow from graph 0.044,first {4} to graph .956,first {4} nohead lw {3} lc rgb "#e8e8e8" back
 set arrow from graph 0.001,first {1} to graph .999,first {1} nohead lw 1 lc rgb "blue" back
-plot 'LOC_by_month.dat' using 1:2 w boxes fs solid
+plot 'LOC_by_month.dat' using 1:2 w boxes fs solid 1, '' u 1:($2+{5}):($2) with labels
 """.format(yymm_csv, 
-		self.avg_loc, self.avg_loc/4, self.avg_loc/14.2, 3*self.avg_loc/4
+		self.avg_loc, self.avg_loc/4, self.avg_loc/14.2, 3*self.avg_loc/4, self.avg_loc/22
 	))
 		f.close()
 # arrow:
