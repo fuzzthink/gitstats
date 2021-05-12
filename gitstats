@@ -1209,7 +1209,6 @@ class HTMLReportCreator(ReportCreator):
 			fg.write('%s %s\n' % (yymm, loc))
 			prv_locs += loc
 		self.avg_loc = prv_locs / len(loc_cum)
-		print('AVG', self.avg_loc)
 		fg.close()
 
 		f.close()
@@ -1405,7 +1404,7 @@ set bmargin 4
 set xtics ("{0}") rotate by -45
 set boxwidth .8 relative
 set grid y
-set ylabel "Lines"
+set ylabel "{1}" font ",13" rotate by 0 offset 11,0
 set arrow from graph 0.044,first {2} to graph .956,first {2} nohead lw {3} lc rgb "#e8e8e8" back
 set arrow from graph 0.044,first {4} to graph .956,first {4} nohead lw {3} lc rgb "#e8e8e8" back
 set arrow from graph 0.001,first {1} to graph .999,first {1} nohead lw 1 lc rgb "blue" back
@@ -1415,11 +1414,12 @@ plot 'LOC_by_month.dat' using 1:2 w boxes fs solid
 	))
 		f.close()
 # arrow:
-#  First 2 arrow is a hack to set background rect. gnuplot has rect, but can't get it to work
+#  - First 2 arrow is a hack to set background rect. gnuplot has rect, but can't get it to work
 #  So using arrow to hack a rect. Need to use 2 since there's a limit on line width.
-#  Last arrow is the real avg.
+#  - Last arrow is the real avg.
+#  - The offsets will be off if chart size or margin is changed.  
 # label:
-#  Would put a "avg: num" label on it, but can't get `set label "..." at x,y center` to work.
+#  - Can't get `set label "..." at x,y center` to work, so using the ylabel instead
 
 		# Lines of Code Added per author
 		if self.show_author_loc_chart:
