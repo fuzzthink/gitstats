@@ -1208,6 +1208,8 @@ class HTMLReportCreator(ReportCreator):
 			loc = loc_cum[yymm] if i == 0 else loc_cum[yymm] - prv_locs
 			fg.write('%s %s\n' % (yymm, loc))
 			prv_locs += loc
+		self.avg_loc = prv_locs / len(loc_cum)
+		print('AVG', self.avg_loc)
 		fg.close()
 
 		f.close()
@@ -1400,13 +1402,24 @@ set xdata time
 set timefmt "%Y-%m"
 set format x "%Y-%m"
 set bmargin 4
-set xtics ("{}") rotate by -45
-set boxwidth .9 relative
+set xtics ("{0}") rotate by -45
+set boxwidth .8 relative
 set grid y
 set ylabel "Lines"
+set arrow from graph 0.044,first {2} to graph .956,first {2} nohead lw {3} lc rgb "#e8e8e8" back
+set arrow from graph 0.044,first {4} to graph .956,first {4} nohead lw {3} lc rgb "#e8e8e8" back
+set arrow from graph -.001,first {1} to graph 1,first {1} nohead lw 2 lc rgb "blue" back
 plot 'LOC_by_month.dat' using 1:2 w boxes fs solid
-""".format(yymm_csv))
+""".format(yymm_csv, 
+		self.avg_loc, self.avg_loc/4, self.avg_loc/14, 3*self.avg_loc/4
+	))
 		f.close()
+# arrow:
+#  First 2 arrow is a hack to set background rect. gnuplot has rect, but can't get it to work
+#  So using arrow to hack a rect. Need to use 2 since there's a limit on line width.
+#  Last arrow is the real avg.
+# label:
+#  Would put a "avg: num" label on it, but can't get `set label "..." at x,y center` to work.
 
 		# Lines of Code Added per author
 		if self.show_author_loc_chart:
