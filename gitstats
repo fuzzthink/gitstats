@@ -1182,35 +1182,60 @@ class HTMLReportCreator(ReportCreator):
 		f.write('<img src="lines_of_code.png" alt="Lines of Code">')
 
 		fg = open(path + '/lines_of_code.dat', 'w')
-		loc_cum = {}
+		loc_mo = {}
 		delta = 0
 		i = 0
-		for stamp in sorted(data.changes_by_date.keys()):
+		sorted_ts = sorted(data.changes_by_date.keys())
+		for stamp in sorted_ts:
 			if i < len(data.loc_deltas) and stamp >= data.loc_delta_ts[i]:
 				delta += data.loc_deltas[i]
 				i += 1
 				print 'LOC delta added:', delta
 			loc = delta + data.changes_by_date[stamp]['lines']
 			dt = dtdt.fromtimestamp(stamp)
-			datekey = '%d-%02d' % (dt.year, dt.month)
-			loc_cum[datekey] = loc
+			loc_mo['%d-%02d' % (dt.year, dt.month)] = loc
 			fg.write('%d %d\n' % (stamp, loc))
 		fg.close()
 
 		f.write('</body></html>')
 
-		## LOCs by month
+		## Calc LOCs by month
 		fg = open(path + '/LOC_by_month.dat', 'w')
 		f.write(html_header(2, 'Lines of Code by Month'))
 		f.write('<img src="LOC_by_month.png" alt="Lines of Code by month">')
-		prv_locs = 0
-		for i, yymm in enumerate(sorted(loc_cum.keys())):
-			loc = loc_cum[yymm] if i == 0 else loc_cum[yymm] - prv_locs
-			fg.write('%s %s\n' % (yymm, loc))
-			prv_locs += loc
-		self.avg_loc = prv_locs / len(loc_cum)
-		fg.close()
 
+		## Get LOCs by mo. 
+		loc_sum = 0
+		sorted_mos = sorted(loc_mo.keys())
+		for i, yymm in enumerate(sorted_mos):
+			loc = loc_mo[yymm] - (0 if i == 0 else loc_sum)
+			loc_sum += loc
+		num_mos = len(loc_mo)
+		avg_loc = loc_sum / num_mos
+
+		## Ignore starting mo if it's < 50% of avg.
+		iStart = 0
+		iEnd = num_mos
+		if loc_mo[sorted_mos[0]] < .5 * avg_loc:
+			iStart = 1
+
+		## Ignore ending mo if it's < 50% of avg and is < day 10 this mo.
+		if loc_mo[sorted_mos[-1]] < .5 * avg_loc: 
+			today = dtdt.today()
+			last_commit = dtdt.fromtimestamp(sorted_ts[-1])
+			if last_commit.day < 10 and last_commit.month==today.month: 
+				iEnd -= 1
+
+		## Re-do LOCs by mo., write to fg.
+		loc_sum = 0
+		for i, yymm in enumerate(sorted_mos):
+			loc = loc_mo[yymm] - (0 if i == 0 else loc_sum)
+			loc_sum += loc
+			skip = iStart > i or iEnd < i-1
+			bar_color = 1 if skip else 2
+			fg.write('%s %s %s\n' % (yymm, loc, bar_color))
+		self.avg_loc = loc_sum / len((sorted_mos[iStart:iEnd]))
+		fg.close()
 		f.close()
 
 		###
@@ -1408,11 +1433,14 @@ set ylabel "{1}" font ",13" rotate by 0 offset 11,0
 set arrow from graph 0.044,first {2} to graph .956,first {2} nohead lw {3} lc rgb "#e8e8e8" back
 set arrow from graph 0.044,first {4} to graph .956,first {4} nohead lw {3} lc rgb "#e8e8e8" back
 set arrow from graph 0.001,first {1} to graph .999,first {1} nohead lw 1 lc rgb "blue" back
-plot 'LOC_by_month.dat' using 1:2 w boxes fs solid 1, '' u 1:($2+{5}):($2) with labels
+set linetype 1 lc rgb "grey"
+set linetype 2 lc rgb "blue"
+plot 'LOC_by_month.dat' using 1:2:3 w boxes fs solid lc variable, '' u 1:($2+{5}):($2) with labels
 """.format(yymm_csv, 
 		self.avg_loc, self.avg_loc/4, self.avg_loc/14.2, 3*self.avg_loc/4, self.avg_loc/22
 	))
 		f.close()
+# default color: replace 'lc variable' with '1'
 # arrow:
 #  - First 2 arrow is a hack to set background rect. gnuplot has rect, but can't get it to work
 #  So using arrow to hack a rect. Need to use 2 since there's a limit on line width.
