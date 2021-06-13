@@ -48,6 +48,9 @@ table.tags td {
 td {
 	background-color: white;
 }
+td.num {
+	text-align: right;
+}
 
 th {
 	background-color: #ddf;
