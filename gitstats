@@ -819,12 +819,8 @@ class HTMLReportCreator(ReportCreator):
 		f.write('<h1>Activity</h1>')
 		self.printNav(f)
 
-		#f.write('<h2>Last 30 days</h2>')
-
-		#f.write('<h2>Last 12 months</h2>')
-
 		# Weekly activity
-		WEEKS = 32
+		WEEKS = 52
 		f.write(html_header(2, 'Weekly activity'))
 		f.write('<p>Last %d weeks</p>' % WEEKS)
 
@@ -1210,7 +1206,9 @@ class HTMLReportCreator(ReportCreator):
 
 		f.write('</body></html>')
 
+		#####################
 		## Calc LOCs by month
+		#####################
 		fg = open(path + '/LOC_by_month.dat', 'w')
 		f.write(html_header(2, 'Lines of Code by Month'))
 		f.write('<img src="LOC_by_month.png" alt="Lines of Code by month">')
@@ -1425,6 +1423,8 @@ plot 'lines_of_code.dat' using 1:2 w lines
 		f.close()
 
 		# Lines of Code by Month
+		bar_label_offsetY = self.avg_loc/22.0
+		avgloc_label_offsetY = self.avg_loc/450.0 # 3.3 - 3.4 was good when avgloc ~= 1550
 		f = open(path + '/LOC_by_month.plot', 'w')
 		f.write(GNUPLOT_COMMON)
 		f.write(
@@ -1440,25 +1440,16 @@ set bmargin 4
 set xtics ("{0}") rotate by -45
 set boxwidth .8 relative
 set grid y
-set ylabel "{1}" font ",13" rotate by 0 offset 11,0
-set arrow from graph 0.05,first {2} to graph .95,first {2} nohead lw {3} lc rgb "#e8e8e8" back
-set arrow from graph 0.05,first {4} to graph .95,first {4} nohead lw {3} lc rgb "#e8e8e8" back
-set arrow from graph 0.001,first {1} to graph .999,first {1} nohead lw 1 lc rgb "blue" back
+set ylabel "{1}" font ",13" rotate by 0 offset 12,{3}
+set object rect from graph 0,first 0 to graph 1,first {1} fc rgb "#e8e8e8" behind fs noborder
+set arrow from graph 0,first {1} to graph 1,first {1} nohead lw 1 lc rgb "blue" back
 set linetype 1 lc rgb "grey"
 set linetype 2 lc rgb "blue"
-plot 'LOC_by_month.dat' using 1:2:3 w boxes fs solid lc variable, '' u 1:($2+{5}):($2) with labels
-""".format(yymm_csv, 
-		self.avg_loc, self.avg_loc/4, self.avg_loc/14.2, 2.95*self.avg_loc/4, self.avg_loc/22
-	))
+plot 'LOC_by_month.dat' using 1:2:3 w boxes fs solid lc variable, '' u 1:($2+{2}):($2) with labels
+""".format(yymm_csv, self.avg_loc, bar_label_offsetY, avgloc_label_offsetY))
 		f.close()
-# default color: replace 'lc variable' with '1'
-# arrow:
-#  - First 2 arrow is a hack to set background rect. gnuplot has rect, but can't get it to work
-#  So using arrow to hack a rect. Need to use 2 since there's a limit on line width.
-#  - Last arrow is the real avg.
-#  - The offsets will be off if chart size or margin is changed.  
-# label:
-#  - Can't get `set label "..." at x,y center` to work, so using the ylabel instead
+# arrow is avg loc line. 'first' to select coord-system 1 (default is 0, didn't work).
+# ylabel is avg loc count. 'rotate by 0' to set label horizontally
 
 		# Lines of Code Added per author
 		if self.show_author_loc_chart:
