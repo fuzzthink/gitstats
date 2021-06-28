@@ -1228,7 +1228,7 @@ class HTMLReportCreator(ReportCreator):
 		if loc_mo[sorted_mos[0]] < .5 * avg_loc:
 			iStart = 1
 
-		## Ignore ending mo if it's < 50% of avg and is < day 10 this mo.
+		## Ignore ending mo if it's < 50% of avg and is < 10 days into the mo.
 		if loc_mo[sorted_mos[-1]] < .5 * avg_loc: 
 			today = dtdt.today()
 			last_commit = dtdt.fromtimestamp(sorted_ts[-1])

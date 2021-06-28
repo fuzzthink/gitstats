@@ -2,6 +2,7 @@
 
 This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the following fixes/enhancements:
 
+- Add this README
 - Ability to read a gitstats config file in the target source repo
 - Fixed the "fatal: Needed a single revision" error
 - Fixed the inability to specify `commit_begin`
@@ -9,11 +10,16 @@ This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the foll
 - Ability to specify files and paths to ignore in the config file
 - Ability to specify timestamp and line count delta pairs to correct the miscounts
 - Ability to remove the Lines of Code by Author chart
-- Change the Author chart from just added lines to more useful LOC count
-- Added Lines of Code by Month chart, with average count and line
-- Enlarge Lines of Code charts
-- Made the Commits by Month chart from single pixel thin bars to full width bars
-- Add this README
+- Enhanced Activity Page:
+  - Commits by Month chart is now full width bars instead of thin single pixel bars 
+  - Simpler right-hand side tables
+  - Show last 52 weeks instead of just 32
+- Enhanced Lines of Code charts:
+  - Bigger with average lines of code line 
+  - Added Lines of Code by Month chart:
+    - with average LOC per month count shown with line and background
+    - averge LOC per month count excludes first month if it is < 50% of average  
+    - averge LOC per month count excludes most recent month if < 50% of average and is < 10 days into the month
 
 
 ## Background, Other Forks
