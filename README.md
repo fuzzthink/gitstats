@@ -7,7 +7,7 @@ This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the foll
 - Fixed the "fatal: Needed a single revision" error
 - Fixed the inability to specify `commit_begin`
 - Ability to specify `commit_begin` param in the config file
-- Ability to specify files and paths to ignore in the config file
+- Ability to specify files and paths to ignore for file counts in the config file
 - Ability to specify timestamp and line count delta pairs to correct the miscounts
 - Ability to remove the Lines of Code by Author chart
 - Enhanced Activity Page:
