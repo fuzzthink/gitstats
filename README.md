@@ -54,7 +54,7 @@ The config file is a javascript file since both js and non-js sources (like this
 
 The config file requires the following:
 
-1. 1st line must define `ignore` -- the file paths ignore regex.
+1. 1st line must define `ignore` -- the file paths ignore regex **.
 2. 2nd line if provided, must define the `commit_begin` string.
 3. 3rd line if provided, must define `commit_delta` -- array of commit timestamp and line count delta pairs.
   The pair is separated by a comma and pairs are separated by a '|'.
@@ -65,7 +65,7 @@ The config file requires the following:
 
 * The author LOC charts only showed lines added, which is useless. I have fixed it by adding removed lines to it but it will not match LOC chart for single author repos if `commit_delta`'s are added. This option allows the author charts to be skipped.
 
-Specifying the `ignore` will only ignore files in file reports, not LOC since the LOC per commit is done via line additions and subtractions, and there is no easy way to filter the deltas based on file paths. If you are lucky enough to have removed large files early in your history, specifying the `commit_begin` will help. To have the LOC be in similar to the LOC reported by `git ls-files ...` (see the sample javascript below), you need to specify `commit_delta` pairs. If you commit history is short, you should be able to find the deltas easily. If not, you can probably write a one-liner or simple script to find the top commits by lines changed.
+** Specifying the `ignore` will only ignore files in file reports, not LOC since the LOC per commit is done via line additions and subtractions, and there is no easy way to filter the deltas based on file paths. If you are lucky enough to have removed large files early in your history, specifying the `commit_begin` will help. To have the LOC be in similar to the LOC reported by `git ls-files ...` (see the sample javascript below), you need to specify `commit_delta` pairs. If you commit history is short, you should be able to find the deltas easily. If not, you can probably write a one-liner or simple script to find the top commits by lines changed.
 
 The commit timestamp can be obtained via 
 
@@ -88,7 +88,7 @@ export { // module.exports = { // if will import with require
 
 /**
 Rules:
-1st line must define `ignore` -- the file paths ignore regex.
+1st line must define `ignore` -- file paths ignore regex (only for files count, not LOC count).
 2nd line if provided, must define the `commit_begin` string.
 3rd line if provided, must define `commit_delta` -- array of commit timestamp and line count delta pairs.
   The pair is separated by a comma and pairs are separated by a '|'.

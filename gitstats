@@ -216,8 +216,6 @@ class DataCollector:
 				line = cfg_file.readline()
 				ignores = line and line.split('"') 
 				conf['ignore'] = ignores[1] if 'ignore' in ignores[0] and len(ignores) > 2 else ''
-				if conf['ignore']:
-					print 'Found .gitstatsignore, will filter files matched'
 
 				line = cfg_file.readline()
 				begins = line and line.split('"') 
