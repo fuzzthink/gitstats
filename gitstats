@@ -644,6 +644,7 @@ class GitDataCollector(DataCollector):
 					try:
 						oldstamp = stamp
 						(stamp, author) = (int(line[:pos]), line[pos+1:])
+						print stamp
 						if oldstamp > stamp:
 							# clock skew, keep old timestamp to avoid having ugly graph
 							stamp = oldstamp
@@ -1054,14 +1055,19 @@ class HTMLReportCreator(ReportCreator):
 		for author in self.authors_to_plot:
 			lines_by_authors[author] = 0
 			commits_by_authors[author] = 0
+		delta = 0
+		i = 0
 		for stamp in sorted(data.changes_by_date_by_author.keys()):
 			fgl.write('%d' % stamp)
 			fgc.write('%d' % stamp)
+			if i < len(data.loc_deltas) and stamp >= data.loc_delta_ts[i]:
+				delta += data.loc_deltas[i]
+				i += 1
 			for author in self.authors_to_plot:
 				if author in data.changes_by_date_by_author[stamp].keys():
 					lines_by_authors[author] = \
 						data.changes_by_date_by_author[stamp][author]['lines_added'] - \
-						data.changes_by_date_by_author[stamp][author]['lines_removed']
+						data.changes_by_date_by_author[stamp][author]['lines_removed'] + delta
 					commits_by_authors[author] = data.changes_by_date_by_author[stamp][author]['commits']
 				fgl.write(' %d' % lines_by_authors[author])
 				fgc.write(' %d' % commits_by_authors[author])
