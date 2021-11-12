@@ -1145,8 +1145,13 @@ class HTMLReportCreator(ReportCreator):
 
 		# use set to get rid of duplicate/unnecessary entries
 		files_by_date = set()
-		for stamp in sorted(data.files_by_stamp.keys()):
-			files_by_date.add('%s %d' % (datetime.datetime.fromtimestamp(stamp).strftime('%Y-%m-%d'), data.files_by_stamp[stamp]))
+		sortedTS = sorted(data.files_by_stamp.keys())
+		filesDelta = data.getTotalFiles() - data.files_by_stamp[sortedTS[-1]]
+		for ts in sortedTS:
+			files_by_date.add('%s %d' % (
+				datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d'),
+				data.files_by_stamp[ts] + filesDelta
+			))
 
 		fg = open(path + '/files_by_date.dat', 'w')
 		for line in sorted(list(files_by_date)):
