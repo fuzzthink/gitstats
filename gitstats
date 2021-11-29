@@ -849,41 +849,7 @@ class HTMLReportCreator(ReportCreator):
 		for i in range(0, WEEKS):
 			f.write('<td>%s</td>' % (WEEKS - i))
 		f.write('</tr></table>')
-
-		# Hour of Day
-		f.write(html_header(2, 'Hour of Day'))
-		hour_of_day = data.getActivityByHourOfDay()
-		f.write('<table><tr><th>Hour</th>')
-		for i in range(0, 24):
-			f.write('<th>%d</th>' % i)
-		f.write('</tr>\n<tr><th>Commits</th>')
-		fp = open(path + '/hour_of_day.dat', 'w')
-		for i in range(0, 24):
-			if i in hour_of_day:
-				r = 127 + int((float(hour_of_day[i]) / data.activity_by_hour_of_day_busiest) * 128)
-				f.write('<td style="background-color: rgb(%d, 0, 0)">%d</td>' % (r, hour_of_day[i]))
-				fp.write('%d %d\n' % (i, hour_of_day[i]))
-			else:
-				f.write('<td>0</td>')
-				fp.write('%d 0\n' % i)
-		fp.close()
-		f.write('</tr>\n<tr><th>%</th>')
 		totalcommits = data.getTotalCommits()
-		for i in range(0, 24):
-			if i in hour_of_day:
-				r = 127 + int((float(hour_of_day[i]) / data.activity_by_hour_of_day_busiest) * 128)
-				f.write('<td style="background-color: rgb(%d, 0, 0)">%.1f</td>' % (r, (100.0 * hour_of_day[i]) / totalcommits))
-			else:
-				f.write('<td>0.00</td>')
-		f.write('</tr></table>')
-		f.write('<img src="hour_of_day.png" alt="Hour of Day">')
-		fg = open(path + '/hour_of_day.dat', 'w')
-		for i in range(0, 24):
-			if i in hour_of_day:
-				fg.write('%d %d\n' % (i + 1, hour_of_day[i]))
-			else:
-				fg.write('%d 0\n' % (i + 1))
-		fg.close()
 
 		# Day of Week
 		f.write(html_header(2, 'Day of Week'))

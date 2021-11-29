@@ -20,7 +20,9 @@ This is a fork of [gitstats](https://github.com/hoxu/gitstats). It adds the foll
     - with average LOC per month count shown with line and background
     - averge LOC per month count excludes first month if it is < 50% of average  
     - averge LOC per month count excludes most recent month if < 50% of average and is < 10 days into the month
-
+- Reduce noise of Activity page by:
+  - Removing LOC counts in activity tables
+  - Removing "Hour of Day" section
 
 ## Background, Other Forks
 
@@ -57,7 +59,7 @@ The config file requires the following:
 1. 1st line must define `ignore` -- the file paths ignore regex **.
 2. 2nd line if provided, must define the `commit_begin` string.
 3. 3rd line if provided, must define `commit_delta` -- array of commit timestamp and line count delta pairs.
-  The pair is separated by a comma and pairs are separated by a '|'.
+  The pair is separated by a comma and pairs are separated by a `|`.
   Earlier commit deltas must come first.
 4. 4th line if provided, must define `show_author_loc_chart=false`, to not show the useless/buggy* author LOC charts.
 5. All values must be delimited by double quotes.
@@ -91,7 +93,7 @@ Rules:
 1st line must define `ignore` -- file paths ignore regex (only for files count, not LOC count).
 2nd line if provided, must define the `commit_begin` string.
 3rd line if provided, must define `commit_delta` -- array of commit timestamp and line count delta pairs.
-  The pair is separated by a comma and pairs are separated by a '|'.
+  The pair is separated by a comma and pairs are separated by a `|`.
   Earlier commit deltas must come first.
 4th line if provided, must define `show_author_loc_chart=false` to not show the buggy author LOC charts.
 
