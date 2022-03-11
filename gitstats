@@ -225,7 +225,7 @@ class DataCollector:
 
 				line = cfg_file.readline()
 				deltas = line and line.split('"') 
-				if len(deltas) > 1 and 'commit_delta' in deltas[0]:
+				if deltas and len(deltas) > 1 and 'commit_delta' in deltas[0] and '|' in deltas[1]:
 					for pair_str in deltas[1].split('|'):
 						ts, delta = pair_str.split(',') 
 						if delta:
